@@ -158,3 +158,13 @@ Workflow расположен в файле:
 
 ```text
 .github/workflows/ci.yml
+
+### Скриншоты выполнения CI/CD процесса
+
+#### Успешное выполнение
+
+![Успешное выполнение CI](screenshots/ci_success.png)
+
+#### Выполнение с ошибкой
+
+![Ошибка выполнения CI](screenshots/ci_failed.png)
