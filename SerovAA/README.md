@@ -51,6 +51,7 @@ pip install pytest
 pytest tests/
 
 ----
+
 ## Особенности решения:
 
 ✅ Одна точка входа — Nginx на порту 8080
