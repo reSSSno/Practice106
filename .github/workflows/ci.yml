@@ -9,58 +9,69 @@ on:
 jobs:
   test-backend:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install backend dependencies
+      - name: Install dependencies
         working-directory: SerovAA/backend
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install dev dependencies
-        run: pip install pytest pytest-cov
-
+        run: pip install -r requirements.txt
+      - name: Install pytest
+        run: pip install pytest
       - name: Run backend tests
         working-directory: SerovAA
         run: |
-          python -m pytest tests/test_backend.py -v --tb=short
+          # Ждём Redis (хотя healthcheck уже есть, на всякий случай)
+          sleep 2
+          PYTHONPATH=. python -m pytest tests/test_backend.py -v --tb=short
+        env:
+          REDIS_HOST: localhost   # чтобы backend точно знал, где Redis
 
   test-worker:
     runs-on: ubuntu-latest
+    services:
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-
-      - name: Install worker dependencies
+      - name: Install dependencies
         working-directory: SerovAA/worker
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-
-      - name: Install dev dependencies
-        run: pip install pytest pytest-cov
-
+        run: pip install -r requirements.txt
+      - name: Install pytest
+        run: pip install pytest
       - name: Run worker tests
         working-directory: SerovAA
         run: |
-          python -m pytest tests/test_worker.py -v --tb=short
+          sleep 2
+          PYTHONPATH=. python -m pytest tests/test_worker.py -v --tb=short
+        env:
+          REDIS_HOST: localhost
 
-  # Необязательная проверка: собрать Docker Compose (без запуска)
   docker-build:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Build Docker images
         working-directory: SerovAA
         run: docker compose build
