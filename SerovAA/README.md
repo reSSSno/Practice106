@@ -36,6 +36,20 @@ curl http://localhost:8080/api/generate -X POST -H "Content-Type: application/js
 ### Останавливаем
 docker compose down
 
+## CI/CD Pipeline
+
+Проект использует **GitHub Actions** для автоматической проверки при pull request в `main` ветку.
+
+### Что проверяется:
+- ✅ Корректность API (backend тесты)
+- ✅ Генерация паролей (worker тесты)
+- ✅ Сборка Docker образов (docker compose build)
+
+### Как запустить тесты локально:
+```bash
+pip install pytest
+pytest tests/
+
 ----
 ## Особенности решения:
 
